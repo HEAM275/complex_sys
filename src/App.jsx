@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import UserManagement from './pages/UserManagement';
 import './App.css';
 
 function App() {
@@ -25,6 +26,14 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               }
+              />
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
             />
             
             {/* Redirección por defecto */}

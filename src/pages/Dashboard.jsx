@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  // 👇 Esta línea faltaba: obtener user y logout del contexto
+  
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   return (
@@ -58,9 +60,9 @@ const Dashboard = () => {
         <div className="components-section">
           <h3>Componentes del Sistema</h3>
           <div className="components-grid">
-            <div className="component-card">
-              <h4> Autenticación</h4>
-              <p>Gestión de usuarios y sesiones</p>
+            <div className="component-card" onClick={() => navigate('/users')} style={{ cursor: 'pointer' }}>
+              <h4>👥 Gestión de Usuarios</h4>
+              <p>Administra usuarios y permisos</p>
             </div>
             <div className="component-card">
               <h4>💰 Ventas</h4>

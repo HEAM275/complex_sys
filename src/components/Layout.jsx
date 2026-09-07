@@ -28,9 +28,12 @@ const Layout = ({ children }) => {
         <nav className="nav-menu">
           <ul>
             <li>
-              <a href="#dashboard" className="nav-link active">
+              <a href="/dashboard" className="nav-link active">
                 📊 Dashboard
               </a>
+            </li>
+            <li>
+              <a href="/users" className="nav-link">👥 Gestión de Usuarios</a>
             </li>
             <li>
               <a href="#ventas" className="nav-link">
@@ -39,7 +42,7 @@ const Layout = ({ children }) => {
             </li>
             <li>
               <a href="#pedidos" className="nav-link">
-                 Pedidos
+                📦Pedidos
               </a>
             </li>
             <li>
