@@ -1,9 +1,34 @@
 import { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom'; // ✅ Agregar useLocation y Link
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '../context/AuthContext'; // ✅ Importar useAuth
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation(); // ✅ Obtener la ruta actual
+  const { user } = useAuth(); // ✅ Obtener el usuario actual
+  
+  console.log('usuario actual :', user)
+  console.log('📋 Roles del usuario:', user?.roles);
+
+  const isAdmin = () => {
+  if (!user || !user.roles || user.roles.length === 0) return false;
+  
+  // Caso 1: Si los roles son un array de strings (ej: ['admin'])
+  if (typeof user.roles[0] === 'string') {
+    return user.roles.some(role => role.toLowerCase() === 'admin');
+  }
+  
+  // Caso 2: Si los roles son un array de objetos (ej: [{ name: 'admin', uuid: '...' }])
+  return user.roles.some(role => role.name?.toLowerCase() === 'admin');
+  };
+
+
+  // ✅ Función para verificar si una ruta está activa
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <div className="layout">
@@ -28,32 +53,60 @@ const Layout = ({ children }) => {
         <nav className="nav-menu">
           <ul>
             <li>
-              <a href="/dashboard" className="nav-link active">
+              <Link 
+                to="/dashboard" 
+                className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
+              >
                 📊 Dashboard
-              </a>
+              </Link>
             </li>
+            
+            {/* ✅ Solo mostrar si es admin */}
+            {isAdmin() && (
+              <li>
+                <Link 
+                  to="/users" 
+                  className={`nav-link ${isActive('/users') ? 'active' : ''}`}
+                >
+                  👥 Gestión de Usuarios
+                </Link>
+              </li>
+            )}
+            
             <li>
-              <a href="/users" className="nav-link">👥 Gestión de Usuarios</a>
-            </li>
-            <li>
-              <a href="#ventas" className="nav-link">
+              <Link 
+                to="/ventas" 
+                className={`nav-link ${isActive('/ventas') ? 'active' : ''}`}
+              >
                 💰 Ventas
-              </a>
+              </Link>
             </li>
+            
             <li>
-              <a href="#pedidos" className="nav-link">
-                📦Pedidos
-              </a>
+              <Link 
+                to="/pedidos" 
+                className={`nav-link ${isActive('/pedidos') ? 'active' : ''}`}
+              >
+                📦 Pedidos
+              </Link>
             </li>
+            
             <li>
-              <a href="#almacen" className="nav-link">
+              <Link 
+                to="/almacen" 
+                className={`nav-link ${isActive('/almacen') ? 'active' : ''}`}
+              >
                 🏪 Almacén
-              </a>
+              </Link>
             </li>
+            
             <li>
-              <a href="#correos" className="nav-link">
+              <Link 
+                to="/correos" 
+                className={`nav-link ${isActive('/correos') ? 'active' : ''}`}
+              >
                 📧 Correos
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

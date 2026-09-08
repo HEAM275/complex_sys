@@ -1,0 +1,52 @@
+.forbidden-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+}
+
+.forbidden-content {
+  text-align: center;
+  padding: 40px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px var(--shadow);
+  max-width: 500px;
+}
+
+.forbidden-code {
+  font-size: 6rem;
+  font-weight: 900;
+  color: #ff4757;
+  margin: 0;
+  line-height: 1;
+}
+
+.forbidden-title {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin: 20px 0 10px 0;
+}
+
+.forbidden-message {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+.forbidden-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-tertiary);
+}

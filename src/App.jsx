@@ -30,11 +30,11 @@ function App() {
               <Route
                 path="/users"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin"> // ← Agregar validación de rol
                     <UserManagement />
                   </ProtectedRoute>
                 }
-            />
+              />
             
             {/* Redirección por defecto */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

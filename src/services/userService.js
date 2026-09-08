@@ -52,18 +52,24 @@ const getAuthHeaders = () => {
 
 export const userService = {
   getUsers: async () => {
-    const response = await fetch(`${API_URL}/users/`, { // Nota la barra al final si tu router la espera
+    const response = await fetch(`${API_URL}/users/`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
 
-    // Si es 401 (No autorizado) o 403 (Prohibido), cerrar sesión y redirigir
-    if (response.status === 401 || response.status === 403) {
+    // ✅ 401 = Token inválido/expirado → cerrar sesión
+    if (response.status === 401) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
-      window.location.href = '/login'; // Redirigir al login
-      throw new Error('Sesión expirada o permisos insuficientes');
+      window.location.href = '/login';
+      throw new Error('Sesión expirada');
+    }
+
+    // ✅ 403 = Sin permisos → NO cerrar sesión, solo lanzar error
+    if (response.status === 403) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'No tienes permisos para acceder');
     }
 
     if (!response.ok) {

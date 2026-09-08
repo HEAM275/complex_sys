@@ -7,7 +7,9 @@ import './UserManagement.css';
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,48 +20,100 @@ const UserManagement = () => {
     setLoading(true);
     try {
       const data = await userService.getUsers();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error cargando usuarios:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (userId) => {
+  const handleDelete = async (userUuid) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      await userService.deleteUser(userId);
-      setUsers(users.filter(u => u.id !== userId));
+      try {
+        await userService.deleteUser(userUuid);
+        setUsers(prevUsers => prevUsers.filter(u => u.uuid !== userUuid));
+      } catch (error) {
+        alert(error.message);
+      }
     }
   };
 
-  // Filtrar usuarios por búsqueda
-  const filteredUsers = users.filter(user => 
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // ==========================================
+  // ✅ FUNCIONES AUXILIARES (MOVIDAS ARRIBA)
+  // ==========================================
 
-  const getRoleBadgeClass = (role) => {
-    return role === 'admin' ? 'badge badge-admin' : 'badge badge-customer';
+  const getUserRoleName = (user) => {
+    if (!user.roles || user.roles.length === 0) return 'customer';
+    const adminRole = user.roles.find(r => r.name === 'admin');
+    if (adminRole) return 'admin';
+    return user.roles[0]?.name || 'customer';
   };
 
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'active': return 'badge badge-active';
-      case 'inactive': return 'badge badge-inactive';
-      case 'pending': return 'badge badge-pending';
-      default: return 'badge';
-    }
+  const getRoleBadgeClass = (roleName) => {
+    return roleName === 'admin' ? 'badge badge-admin' : 'badge badge-customer';
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'active': return 'Activo';
-      case 'inactive': return 'Inactivo';
-      case 'pending': return 'Pendiente';
-      default: return status;
-    }
+  const getRoleText = (roleName) => {
+    return roleName === 'admin' ? 'ADMINISTRADOR' : 'CLIENTE';
   };
+
+  const getStatusBadgeClass = (isActive) => {
+    return isActive ? 'badge badge-active' : 'badge badge-inactive';
+  };
+
+  const getStatusText = (isActive) => {
+    return isActive ? 'ACTIVO' : 'INACTIVO';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    };
+    return date.toLocaleString('es-ES', options);
+  };
+
+  // ==========================================
+  // ✅ FILTRADO (AHORA SÍ PUEDE USAR LAS FUNCIONES)
+  // ==========================================
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const userRole = getUserRoleName(user);
+    const matchesRole = roleFilter === 'all' || userRole === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  // ==========================================
+  // ✅ RENDERIZADO
+  // ==========================================
+
+  if (error && error.includes('permisos')) {
+    return (
+      <Layout>
+        <div className="error-state">
+          <span className="error-icon">🔒</span>
+          <h2>Acceso Restringido</h2>
+          <p>{error}</p>
+          <button onClick={() => navigate('/dashboard')} className="btn btn-primary">
+            Volver al Dashboard
+          </button>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -85,7 +139,11 @@ const UserManagement = () => {
             />
           </div>
           <div className="filters">
-            <select className="filter-select">
+            <select 
+              className="filter-select"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
               <option value="all">Todos los roles</option>
               <option value="admin">Administrador</option>
               <option value="customer">Cliente</option>
@@ -102,7 +160,11 @@ const UserManagement = () => {
           ) : filteredUsers.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">👤</span>
-              <p>No se encontraron usuarios</p>
+              <p>
+                {searchTerm || roleFilter !== 'all' 
+                  ? 'No se encontraron usuarios con los filtros aplicados'
+                  : 'No se encontraron usuarios'}
+              </p>
             </div>
           ) : (
             <table className="data-table">
@@ -121,29 +183,34 @@ const UserManagement = () => {
                   <tr key={user.uuid}>
                     <td>
                       <div className="user-cell">
-                        <div className="avatar">{user.username.charAt(0).toUpperCase()}</div>
+                        <div className="avatar">{(user.username || user.email).charAt(0).toUpperCase()}</div>
                         <span className="username">{user.username}</span>
                       </div>
                     </td>
                     <td className="email-cell">{user.email}</td>
                     <td>
-                      <span className={getRoleBadgeClass(user.role)}>
-                        {user.role === 'admin' ? 'Administrador' : 'Cliente'}
-                      </span>
+                      {(() => {
+                        const roleName = getUserRoleName(user);
+                        return (
+                          <span className={getRoleBadgeClass(roleName)}>
+                            {getRoleText(roleName)}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td>
-                      <span className={getStatusBadgeClass(user.status)}>
-                        {getStatusText(user.status)}
+                      <span className={getStatusBadgeClass(user.is_active)}>
+                        {getStatusText(user.is_active)}
                       </span>
                     </td>
-                    <td className="date-cell">{user.createdAt}</td>
+                    <td className="date-cell">{formatDate(user.created_at)}</td>
                     <td className="text-right">
                       <div className="action-buttons">
                         <button className="btn-icon btn-edit" title="Editar">✏️</button>
                         <button 
                           className="btn-icon btn-delete" 
                           title="Eliminar"
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() => handleDelete(user.uuid)}
                         >
                           🗑️
                         </button>

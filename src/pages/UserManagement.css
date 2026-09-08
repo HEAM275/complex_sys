@@ -234,3 +234,24 @@
     overflow-x: auto;
   }
 }
+
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.error-state h2 {
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.error-state p {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
