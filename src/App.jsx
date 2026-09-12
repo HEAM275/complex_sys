@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import UserCreate from './pages/UserCreate';
+import UserEdit from './pages/UserEdit';
 import './App.css';
 
 function App() {
@@ -32,6 +34,22 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="admin"> // ← Agregar validación de rol
                     <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users/new"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <UserCreate />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users/:id/edit"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <UserEdit />
                   </ProtectedRoute>
                 }
               />

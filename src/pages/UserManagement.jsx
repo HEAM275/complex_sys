@@ -7,6 +7,7 @@ import './UserManagement.css';
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -206,7 +207,13 @@ const UserManagement = () => {
                     <td className="date-cell">{formatDate(user.created_at)}</td>
                     <td className="text-right">
                       <div className="action-buttons">
-                        <button className="btn-icon btn-edit" title="Editar">✏️</button>
+                        <button 
+                          className="btn-icon btn-edit" 
+                          title="Editar"
+                          onClick={() => navigate(`/users/${user.uuid}/edit`)}
+                        >
+                          ✏️
+                        </button>
                         <button 
                           className="btn-icon btn-delete" 
                           title="Eliminar"

@@ -8,9 +8,6 @@ const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation(); // ✅ Obtener la ruta actual
   const { user } = useAuth(); // ✅ Obtener el usuario actual
-  
-  console.log('usuario actual :', user)
-  console.log('📋 Roles del usuario:', user?.roles);
 
   const isAdmin = () => {
   if (!user || !user.roles || user.roles.length === 0) return false;

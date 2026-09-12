@@ -93,5 +93,56 @@ export const userService = {
 
     if (!response.ok) throw new Error('Error al eliminar usuario');
     return true;
+  },
+  getRoles: async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/roles/`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Error al obtener roles');
+    return await response.json();
+  },
+
+  createUser: async (userData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || 'Error al crear usuario');
+    }
+    return await response.json();
+  },
+
+  getUserById: async (userUuid) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userUuid}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Usuario no encontrado');
+    return await response.json();
+  },
+
+  updateUser: async (userUuid, userData) => {
+    // Si la contraseña está vacía, la eliminamos del payload para que el backend no intente actualizarla
+    const payload = { ...userData };
+    if (!payload.password) {
+      delete payload.password;
+    }
+
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userUuid}`, {
+      method: 'PUT', // o PATCH, según como lo tengas en tu router
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || 'Error al actualizar usuario');
+    }
+    return await response.json();
   }
 };
